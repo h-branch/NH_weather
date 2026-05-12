@@ -249,6 +249,12 @@ df_korea["rain_jun_sep_mean"] = (
 print(df_korea)
 
 
+import matplotlib.pyplot as plt
+
+plt.rcParams["font.family"] = "Malgun Gothic"
+plt.rcParams["axes.unicode_minus"] = False
+
+
 # =====================================================
 # 평균값 계산
 # =====================================================
@@ -262,6 +268,22 @@ mean_5yr = df_korea[
 
 
 # =====================================================
+# 최저값, 1200mm 이상 값 확인
+# =====================================================
+min_value = df_korea["rain_jun_sep_mean"].min()
+# 최저값인 행
+df_min = df_korea[df_korea["rain_jun_sep_mean"] == min_value]
+# 1200mm 이상인 행
+df_over_1200 = df_korea[df_korea["rain_jun_sep_mean"] >= 1200]
+# 표시할 행 합치기
+df_label = (
+    pd.concat([df_min, df_over_1200])
+    .drop_duplicates(subset=["year"])
+    .copy()
+)
+
+
+# =====================================================
 # 그래프 작성
 # =====================================================
 fig, ax = plt.subplots(figsize=(14, 6))
@@ -269,42 +291,61 @@ fig, ax = plt.subplots(figsize=(14, 6))
 ax.bar(
     df_korea["year"],
     df_korea["rain_jun_sep_mean"],
-    label="전국 평균 6~9월 누적강수량",
-    color='skyblue'
+    color="skyblue"
 )
-# 2. 30년 평균선
-#ax.axhline(
-#    mean_30yr,
-#    color='green',
-#    linestyle="-",
-#    linewidth=2,
-#    label=f"1996~2025 평균: {mean_30yr:.1f} mm"
-#)
-# 3. 최근 10년 평균선
+# 2. 최근 10년 평균선
 ax.axhline(
     mean_10yr,
-    color='red',
+    color="red",
     linestyle="--",
-    linewidth=2,
-    label=f"최근 10년 평균: {mean_10yr:.1f} mm"
+    linewidth=2
 )
-# 4. 최근 5년 평균선
-#ax.axhline(
-#    mean_5yr,
-#    color='red',
-#    linestyle=":",
-#    linewidth=2.5,
-#    label=f"최근 5년 평균: {mean_5yr:.1f} mm"
-#)
 # =====================================================
-# 축, 제목, 범례
+# 평균선 위에 평균값 텍스트 표시
 # =====================================================
-ax.set_title("1996~2025년 전국 6~9월 누적강수량", fontsize=16)
-ax.set_xlabel("연도")
-ax.set_ylabel("6~9월 누적강수량 평균(mm)")
+x_text = df_korea["year"].max() - 8.
+ax.text(
+    x_text,
+    mean_10yr + 15,
+    f"{mean_10yr:.1f} mm",
+    color="red",
+    fontsize=11,
+    va="bottom",
+    ha="right"
+)
+# =====================================================
+# 최저값과 1200mm 이상 값 막대 위에 표시
+# =====================================================
+for _, row in df_label.iterrows():
+    year = row["year"]
+    rain = row["rain_jun_sep_mean"]
+
+    ax.text(
+        year,
+        rain + 20,
+        f"{rain:.0f}",
+        ha="center",
+        va="bottom",
+        fontsize=10,
+        fontweight="bold"
+    )
+# =====================================================
+# 축, 눈금, 격자
+# =====================================================
 ax.set_xticks(df_korea["year"])
 ax.set_xticklabels(df_korea["year"], rotation=45)
 ax.grid(axis="y", alpha=0.3)
-ax.legend()
+# 오른쪽 평균선 텍스트가 잘리지 않도록 x축 여백 추가
+ax.set_xlim(
+    df_korea["year"].min() - 0.7,
+    df_korea["year"].max() + 0.7
+)
+# y축 위쪽 여백 추가
+ax.set_ylim(
+    0,
+    df_korea["rain_jun_sep_mean"].max() * 1.15
+)
+# 범례 제거
+# ax.legend() 사용하지 않음
 plt.tight_layout()
 plt.show()
