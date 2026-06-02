@@ -117,7 +117,6 @@ def add_wrn_columns(df):
     """
     기상특보자료 컬럼명 부여
     """
-
     cols = [
         "REG_ID",     # 특보구역코드
         "TM_ST",      # 시작시각
@@ -141,20 +140,15 @@ def add_wrn_columns(df):
         "MAN_FC",     # 예보관명
         "MAN_IN"      # 입력자명
     ]
-
     df = df.copy()
-
     if df.empty:
         return df
-
     n_cols = df.shape[1]
-
     if n_cols <= len(cols):
         df.columns = cols[:n_cols]
     else:
         extra_cols = [f"EXTRA_{i}" for i in range(n_cols - len(cols))]
         df.columns = cols + extra_cols
-
     return df
 
 
