@@ -416,7 +416,7 @@ for col in ["호우", "태풍", "폭염"]:
     mean_10yr = df_pivot.tail(10)[col].mean()
     ax.axhline(
         mean_10yr,
-        linestyle="--",a
+        linestyle="--",
         linewidth=2,
         label=f"최근 10년 평균: {mean_10yr:.1f}일"
     )
